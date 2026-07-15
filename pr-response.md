@@ -7,7 +7,10 @@
 > `save_to_watchlist()` should follow the project's naming convention. Compare with `add_to_collection()` — the pattern here is `verb_to_noun`. Please rename to `add_to_watchlist()` and update all call sites.
 
 **What I did:**
+Renamed `save_to_watchlist()` to `add_to_watchlist()` in `services/watchlist_service.py` to follow the project's `verb_to_noun` naming convention. I updated the import and function call in `routes/watchlist/watchlist.py`. I also used `git grep -n "save_to_watchlist"` and `git grep -n "add_to_watchlist"` to confirm all code references were updated.
+
 **How I verified:**
+I ran `git diff` to review the exact changes in both files and confirm that only the function name, import, and call site were changed. I then ran `pytest tests/ -v` and confirmed that all existing tests passed.
 
 ## Comment 2 — Deduplication
 > What happens if a user calls this with a film that's already on their watchlist? The current implementation would add a duplicate entry. Please handle this case.
