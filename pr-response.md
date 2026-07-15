@@ -23,9 +23,22 @@ I compared the implementation with the deduplication logic in `add_to_collection
 
 ## Comment 3 — Missing test
 > Please add a test for the case where `film_id` doesn't exist in the database. Look at the existing tests in `test_collection.py` — the pattern is there.
-
 **What I did:**
+Created `tests/test_watchlist.py` and added
+`test_add_to_watchlist_nonexistent_film_raises()`, following the fixture
+setup and `pytest.raises()` structure used by
+`test_add_to_collection_nonexistent_film_raises()` in
+`tests/test_collection.py`.
+
+I also added `test_add_to_watchlist_duplicate_raises()` to directly verify
+the deduplication behavior added in Comment 2. The test confirms that the
+second add raises `AlreadyOnWatchlistError` and that only one matching
+`WatchlistEntry` remains in the database.
+
 **How I verified:**
+I ran `pytest tests/test_watchlist.py -v` to verify the new watchlist tests,
+then ran `pytest tests/ -v` to confirm the entire test suite passed. All 6
+tests passed.
 
 ## Comment 4 — Default visibility
 > I notice watchlists default to `public=True`. We don't have a documented decision on default visibility for user lists. Before I can approve this, I need you to add a note to your PR description explaining your reasoning. I want to make sure we're being intentional here, not just inheriting a default.
