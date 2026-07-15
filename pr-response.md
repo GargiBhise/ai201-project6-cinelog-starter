@@ -16,7 +16,10 @@ I ran `git diff` to review the exact changes in both files and confirm that only
 > What happens if a user calls this with a film that's already on their watchlist? The current implementation would add a duplicate entry. Please handle this case.
 
 **What I did:**
+Added a duplicate check in `add_to_watchlist()` using the same `user_id` and `film_id` lookup pattern as `add_to_collection()`. If a matching `WatchlistEntry` already exists, the function now raises `AlreadyOnWatchlistError` instead of creating another row.
+
 **How I verified:**
+I compared the implementation with the deduplication logic in `add_to_collection()`, reviewed the exact changes using `git diff`, and ran `pytest tests/ -v`. All existing tests passed.
 
 ## Comment 3 — Missing test
 > Please add a test for the case where `film_id` doesn't exist in the database. Look at the existing tests in `test_collection.py` — the pattern is there.
