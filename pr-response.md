@@ -44,15 +44,27 @@ tests passed.
 > I notice watchlists default to `public=True`. We don't have a documented decision on default visibility for user lists. Before I can approve this, I need you to add a note to your PR description explaining your reasoning. I want to make sure we're being intentional here, not just inheriting a default.
 
 **My position:**
+I would change the default to `public=False`.
+
 **Reasoning:**
+A watchlist represents a user's future viewing interests and may include personal, niche, or sensitive topics. Even if CineLog does not yet have a public discovery feed, the presence of a `public` field suggests that watchlists may be exposed to other users now or in future features. I do not think the application should assume that every user is comfortable sharing that information. A private default gives users control first and allows them to explicitly make the watchlist public when they choose.
+
+Unlike `CollectionEntry`, which has no visibility control, a watchlist may contain exploratory choices a user is only considering and has not yet committed to. That makes the watchlist reasonable to treat more cautiously, although the inconsistency also suggests that CineLog should eventually define a broader visibility policy for both kinds of lists.
+
 **Tradeoff acknowledged:**
+A `public=True` default could improve discovery and make CineLog feel more social because more watchlists would be immediately available for browsing. Defaulting to private may reduce participation in those social features because some users may never opt in. I still prefer explicit consent because accidental sharing is harder to reverse than asking an interested user to enable visibility.
 
 ## Comment 5 — Sort order
 > I'd prefer watchlists to default to "date added" order rather than alphabetical. Most users want to see what they added recently. I'm open to discussion if you see it differently — but let's make a decision and document it.
 
 **My position:**
+I agree with changing the default sort order to date added, newest first.
+
 **Reasoning:**
+A watchlist reflects films a user intends to watch, and recent additions are likely to match the user's current interests. Showing those first makes it easier to revisit something recently discovered without remembering the exact title. It also keeps the watchlist consistent with `get_collection()`, which already uses newest-first ordering.
+
 **Engagement with reviewer's point:**
+I agree that recent additions are likely to be the most useful default. Alphabetical order is still better when a user knows the exact title, especially in a large watchlist, so a future improvement could allow users to choose between alphabetical and recently added sorting.
 
 ## Comment 6 — Rebase
 > A refactor merged to `main` that changed film IDs from integers to UUIDs. Your watchlist code still references integer IDs. Please rebase on `main` and update accordingly.
