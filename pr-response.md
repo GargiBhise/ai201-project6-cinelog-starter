@@ -1,7 +1,9 @@
 # PR Response Doc — CineLog Watchlist Feature
 
 ## AI Usage
-<!-- Fill in at the end — how you used AI tools during this project -->
+AI Usage
+
+I used Claude for orientation on the existing codebase patterns, debugging a Flask/SQLAlchemy circular-import error, reviewing my own code drafts against existing conventions (e.g. catching a variable-naming bug and wrong exception type in my Comment 2 draft), stress-testing my Comment 4/5 arguments as a devil's advocate (which surfaced the CollectionEntry visibility inconsistency I hadn't considered), and step-by-step guidance through interactive rebase, including recovering from a silent models.py conflict that dropped WatchlistEntry. The reasoning in Comments 4–5 and all code/tests are my own; AI was used to verify and unblock, not to generate arguments or implementation.
 
 ## Comment 1 — Rename
 > `save_to_watchlist()` should follow the project's naming convention. Compare with `add_to_collection()` — the pattern here is `verb_to_noun`. Please rename to `add_to_watchlist()` and update all call sites.
@@ -79,4 +81,47 @@ I combined the `.gitignore` rules, removed the conflict markers, staged the file
 I searched the codebase for remaining integer-based `film_id` references, ran `pytest tests/ -v`, and confirmed that all 6 tests passed. I also ran `git log --merges origin/main..HEAD`, which returned no output, confirming that no merge commits remain.
 
 ## PR Description
-<!-- Written at the end — feature overview, design decisions, manual testing steps -->
+Overview
+
+This PR adds a watchlist feature to CineLog, allowing users to save films they intend to watch (as distinct from CollectionEntry, which tracks films already watched). It includes:
+
+
+A new WatchlistEntry model (user_id, film_id, date_added, public)
+Service functions in services/watchlist_service.py: add_to_watchlist() and get_watchlist()
+REST endpoints in routes/watchlist/watchlist.py: GET /watchlist/<user_id> and POST /watchlist/<user_id>/add
+Test coverage in tests/test_watchlist.py for both the nonexistent-film and duplicate-entry cases
+
+
+Design decisions
+
+
+Default visibility (public): Changed to default False. Watchlists can reveal personal or exploratory interests before a user has committed to them, and a private default puts the user in control of when to share that. See Comment 4 for full reasoning.
+Sort order: Watchlists are sorted by date_added descending (newest first), matching get_collection()'s existing sort behavior and prioritizing recent additions over alphabetical browsing. See Comment 5 for full reasoning.
+Deduplication: add_to_watchlist() raises AlreadyOnWatchlistError if the film is already on the user's watchlist, mirroring add_to_collection()'s existing pattern for AlreadyInCollectionError.
+
+
+Manual testing steps
+
+
+Start the app: flask run (with FLASK_APP=app:create_app set), or python app.py if not using the app-factory import pattern.
+Create a user and film via the existing /collection or /films endpoints, or seed data directly.
+Add a film to a user's watchlist:
+
+
+   curl -X POST http://127.0.0.1:5000/watchlist/<user_id>/add \
+     -H "Content-Type: application/json" \
+     -d '{"film_id": "<uuid>"}'
+
+
+Confirm it appears, sorted newest-first:
+
+
+   curl http://127.0.0.1:5000/watchlist/<user_id>
+
+
+Repeat step 3 with the same user_id/film_id and confirm a 409-style error is returned instead of a duplicate entry.
+Run the full test suite: pytest tests/ -v (expect 6 passed).
+
+
+
+Screenshot of git log --oneline : commitHistory.jpg
