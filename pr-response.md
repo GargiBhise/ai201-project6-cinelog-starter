@@ -70,8 +70,13 @@ I agree that recent additions are likely to be the most useful default. Alphabet
 > A refactor merged to `main` that changed film IDs from integers to UUIDs. Your watchlist code still references integer IDs. Please rebase on `main` and update accordingly.
 
 **What conflicted:**
+The rebase first produced an add/add conflict in `.gitignore` because both `main` and my feature branch had added that file. After the rebase completed, the test suite revealed that `WatchlistEntry` was missing from `models.py`, because `main`'s UUID refactor had replaced the earlier model definition.
+
 **How I resolved it:**
+I combined the `.gitignore` rules, removed the conflict markers, staged the file, and continued the rebase. I then restored `WatchlistEntry` in `models.py` using UUID string columns for `id`, `user_id`, and `film_id`, and restored the relationships from `User` and `Film`. I also updated the watchlist route and service docstrings so `film_id` is documented as a UUID rather than an integer.
+
 **How I verified no conflict remains:**
+I searched the codebase for remaining integer-based `film_id` references, ran `pytest tests/ -v`, and confirmed that all 6 tests passed. I also ran `git log --merges origin/main..HEAD`, which returned no output, confirming that no merge commits remain.
 
 ## PR Description
 <!-- Written at the end — feature overview, design decisions, manual testing steps -->
